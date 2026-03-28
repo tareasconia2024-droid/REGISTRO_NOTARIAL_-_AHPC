@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}Búsqueda Avanzada{% endblock %}
+
+{% block content %}
+<div class="search-page">
+    <div class="page-header">
+        <h2 class="page-title">Búsqueda Avanzada</h2>
+        <p class="page-description">Utilice los filtros para refinar su búsqueda en el índice onomástico</p>
+    </div>
+    
+    <!-- Formulario de búsqueda -->
+    <div class="search-panel">
+        <form id="searchForm" class="advanced-search-form">
+            <div class="form-grid">
+                <!-- Apellido -->
+                <div class="form-group">
+                    <label for="apellido" class="form-label">Apellido</label>
+                    <input 
+                        type="text" 
+                        id="apellido" 
+                        name="apellido" 
+                        class="form-input"
+                        placeholder="ej: GONZÁLEZ"
+                    >
+                    <span class="form-hint">Búsqueda parcial permitida</span>
+                </div>
+                
+                <!-- Nombre -->
+                <div class="form-group">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input 
+                        type="text" 
+                        id="nombre" 
+                        name="nombre" 
+                        class="form-input"
+                        placeholder="ej: José"
+                    >
+                    <span class="form-hint">Opcional</span>
+                </div>
+                
+                <!-- Año desde -->
+                <div class="form-group">
+                    <label for="año_desde" class="form-label">Año desde</label>
+                    <input 
+                        type="number" 
+                        id="año_desde" 
+                        name="año_desde" 
+                        class="form-input"
+                        placeholder="1775"
+                        min="1775"
+                        max="1925"
+                    >
+                </div>
+                
+                <!-- Año hasta -->
+                <div class="form-group">
+                    <label for="año_hasta" class="form-label">Año hasta</label>
+                    <input 
+                        type="number" 
+                        id="año_hasta" 
+                        name="año_hasta" 
+                        class="form-input"
+                        placeholder="1925"
+                        min="1775"
+                        max="1925"
+                    >
+                </div>
+                
+                <!-- Escribano -->
+                <div class="form-group full-width">
+                    <label for="escribano" class="form-label">Escribano</label>
+                    <select id="escribano" name="escribano" class="form-select">
+                        <option value="">Todos los escribanos</option>
+                        {% for escribano in escribanos %}
+                        <option value="{{ escribano }}">{{ escribano }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Tipo de acto -->
+                <div class="form-group full-width">
+                    <label for="tipo_acto" class="form-label">Tipo de Acto Jurídico</label>
+                    <select id="tipo_acto" name="tipo_acto" class="form-select">
+                        <option value="">Todos los tipos</option>
+                        {% for tipo in tipos_acto %}
+                        <option value="{{ tipo }}">{{ tipo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Texto libre -->
+                <div class="form-group full-width">
+                    <label for="texto_libre" class="form-label">Búsqueda de texto libre</label>
+                    <input 
+                        type="text" 
+                        id="texto_libre" 
+                        name="texto_libre" 
+                        class="form-input"
+                        placeholder="Buscar en descripción del acto jurídico..."
+                    >
+                    <span class="form-hint">Busca en toda la descripción del documento</span>
+                </div>
+            </div>
+            
+            <!-- Botones -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    Buscar
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
+                    Limpiar
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Resultados -->
+    <div id="resultsSection" class="results-section" style="display: none;">
+        <div class="results-header">
+            <div style="flex: 1;">
+                <h3 class="results-title">Resultados de la búsqueda</h3>
+                <div class="results-count">
+                    <span id="resultsCount">0</span> registros encontrados
+                </div>
+            </div>
+            <button id="exportPdfBtn" class="btn btn-secondary" style="margin-left: auto;">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Exportar PDF
+            </button>
+        </div>
+        
+        <div id="resultsContainer" class="results-container">
+            <!-- Los resultados se cargarán aquí dinámicamente -->
+        </div>
+    </div>
+    
+    <!-- Estado de carga -->
+    <div id="loadingState" class="loading-state" style="display: none;">
+        <div class="spinner"></div>
+        <p>Buscando en el índice...</p>
+    </div>
+    
+    <!-- Sin resultados -->
+    <div id="noResults" class="no-results" style="display: none;">
+        <div class="no-results-icon">🔍</div>
+        <h3>No se encontraron registros</h3>
+        <p>Intente modificar los criterios de búsqueda</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const searchForm = document.getElementById('searchForm');
+const resultsSection = document.getElementById('resultsSection');
+const resultsContainer = document.getElementById('resultsContainer');
+const resultsCount = document.getElementById('resultsCount');
+const loadingState = document.getElementById('loadingState');
+const noResults = document.getElementById('noResults');
+const exportPdfBtn = document.getElementById('exportPdfBtn');
+
+let currentSearchParams = null;
+
+// Manejar envío del formulario
+searchForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Mostrar loading
+    loadingState.style.display = 'block';
+    resultsSection.style.display = 'none';
+    noResults.style.display = 'none';
+    
+    // Obtener datos del formulario
+    const formData = new FormData(searchForm);
+    const params = new URLSearchParams();
+    
+    for (const [key, value] of formData.entries()) {
+        if (value.trim()) {
+            params.append(key, value.trim());
+        }
+    }
+    
+    // Guardar parámetros para exportar PDF
+    currentSearchParams = params.toString();
+    
+    try {
+        // Hacer la petición
+        const response = await fetch(`/api/buscar?${params.toString()}`);
+        const data = await response.json();
+        
+        // Ocultar loading
+        loadingState.style.display = 'none';
+        
+        if (data.total > 0) {
+            // Mostrar resultados
+            mostrarResultados(data.registros);
+            resultsSection.style.display = 'block';
+            resultsCount.textContent = data.total;
+            
+            // 🎯 AUTO-SCROLL A RESULTADOS
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 100);
+            
+        } else {
+            // Sin resultados
+            noResults.style.display = 'block';
+            
+            // Scroll a mensaje de sin resultados
+            setTimeout(() => {
+                noResults.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }, 100);
+        }
+    } catch (error) {
+        console.error('Error en la búsqueda:', error);
+        loadingState.style.display = 'none';
+        alert('Error al realizar la búsqueda. Por favor, intente nuevamente.');
+    }
+});
+
+// 📄 EXPORTAR PDF
+exportPdfBtn.addEventListener('click', () => {
+    if (!currentSearchParams) {
+        alert('Primero debe realizar una búsqueda');
+        return;
+    }
+    
+    // Abrir PDF en nueva ventana
+    window.open(`/api/exportar-pdf?${currentSearchParams}`, '_blank');
+});
+
+function mostrarResultados(registros) {
+    resultsContainer.innerHTML = '';
+    
+    registros.forEach(registro => {
+        const card = document.createElement('div');
+        card.className = 'result-card';
+        
+        card.innerHTML = `
+            <div class="result-header">
+                <h4 class="result-name">${registro.nombre_completo}</h4>
+                <span class="result-year">${registro.año}</span>
+            </div>
+            
+            <div class="result-body">
+                <div class="result-meta">
+                    <span class="meta-item">
+                        <strong>Tipo:</strong> ${registro.tipo_acto}
+                    </span>
+                    <span class="meta-item">
+                        <strong>Foja:</strong> ${registro.foja}
+                    </span>
+                    <span class="meta-item">
+                        <strong>Escribano:</strong> ${registro.escribano}
+                    </span>
+                </div>
+                
+                <p class="result-description">
+                    ${registro.acto_juridico}
+                </p>
+                
+                ${registro.inventario ? `
+                    <div class="result-location">
+                        <strong>Ubicación:</strong> Inventario N° ${registro.inventario}
+                    </div>
+                ` : ''}
+            </div>
+            
+            <div class="result-footer">
+                <a href="/detalle/${registro.id}" class="result-link">
+                    Ver detalle completo →
+                </a>
+            </div>
+        `;
+        
+        resultsContainer.appendChild(card);
+    });
+}
+
+function limpiarFormulario() {
+    searchForm.reset();
+    resultsSection.style.display = 'none';
+    noResults.style.display = 'none';
+    currentSearchParams = null;
+}
+
+// Cargar parámetros de URL si existen
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Poblar campos del formulario
+    for (const [key, value] of urlParams.entries()) {
+        const field = document.getElementById(key);
+        if (field) {
+            field.value = value;
+        }
+    }
+    
+    // Si hay parámetros, ejecutar búsqueda automáticamente
+    if (urlParams.toString()) {
+        searchForm.dispatchEvent(new Event('submit'));
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h2 class="hero-title">Explore 150 años de historia notarial cordobesa</h2>
+        <p class="hero-description">
+            Acceda al índice digitalizado de escrituras públicas del Registro Notarial N°1,
+            documento fundamental para la investigación histórica, genealógica y jurídica.
+        </p>
+        
+        <!-- Estadísticas destacadas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ "{:,}".format(stats.total_registros) }}</div>
+                <div class="stat-label">Registros</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.año_inicio }}-{{ stats.año_fin }}</div>
+                <div class="stat-label">Período</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_escribanos }}</div>
+                <div class="stat-label">Escribanos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">150</div>
+                <div class="stat-label">Años de historia</div>
+            </div>
+        </div>
+        
+        <!-- Buscador rápido -->
+        <div class="quick-search">
+            <form action="/buscar" method="get" class="search-form">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input 
+                        type="text" 
+                        name="apellido" 
+                        id="apellido-home"
+                        class="search-input" 
+                        placeholder="Buscar por apellido (ej: GONZÁLEZ, MARTÍNEZ...)"
+                        autofocus
+                    >
+                    <button type="submit" class="search-button">
+                        Buscar
+                    </button>
+                </div>
+            </form>
+            
+            <div class="search-suggestions">
+                <span class="suggestion-label">Búsqueda rápida:</span>
+                <a href="/buscar?apellido=GONZÁLEZ" class="suggestion-link">González</a>
+                <a href="/buscar?apellido=FERREYRA" class="suggestion-link">Ferreyra</a>
+                <a href="/buscar?apellido=MARTÍNEZ" class="suggestion-link">Martínez</a>
+                <a href="/buscar?tipo_acto=VENTA" class="suggestion-link">Ventas</a>
+                <a href="/buscar?tipo_acto=TESTAMENTO" class="suggestion-link">Testamentos</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información sobre el índice -->
+<div class="info-section">
+    <div class="info-grid">
+        <div class="info-card">
+            <div class="info-icon">📚</div>
+            <h3>¿Qué es el Índice Onomástico?</h3>
+            <p>
+                Es un listado alfabético de las personas que aparecen como partes en las escrituras públicas
+                del Registro Notarial N°1, facilitando la localización de documentos históricos.
+            </p>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-icon">🔍</div>
+            <h3>¿Cómo buscar?</h3>
+            <p>
+                Puede buscar por apellido, nombre, año, tipo de acto jurídico (venta, poder, testamento, etc.)
+                o escribano. Los resultados incluyen la referencia exacta para solicitar el documento.
+            </p>
+        </div>
+        
+        <div class="info-card">
+            <div class="info-icon">📄</div>
+            <h3>Tipos de documentos</h3>
+            <p>
+                El registro incluye ventas, poderes, hipotecas, testamentos, donaciones, cancelaciones
+                y otros actos jurídicos realizados en Córdoba entre 1775 y 1925.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Call to action -->
+<div class="cta-section">
+    <div class="cta-content">
+        <h2>Comience su investigación</h2>
+        <p>Acceda a información histórica valiosa para investigaciones genealógicas, históricas y jurídicas</p>
+        <a href="/buscar" class="cta-button">Búsqueda Avanzada →</a>
+    </div>
+</div>
+{% endblock %}

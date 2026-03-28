@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Índice Onomástico{% endblock %} - AHPC</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600;700&family=Libre+Baskerville:wght@400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Fondo texturizado sutil -->
+    <div class="page-texture"></div>
+    
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="archive-seal">AHPC</div>
+                    <div class="title-section">
+                        <h1 class="main-title">Índice Onomástico</h1>
+                        <p class="subtitle">Registro Notarial N°1 · 1775-1925</p>
+                    </div>
+                </div>
+                
+                <nav class="main-nav">
+                    <a href="/" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">Inicio</a>
+                    <a href="/buscar" class="nav-link {% if request.endpoint == 'buscar' %}active{% endif %}">Buscar</a>
+                    <a href="/estadisticas" class="nav-link {% if request.endpoint == 'estadisticas' %}active{% endif %}">Estadísticas</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Archivo Histórico Provincial de Córdoba</h4>
+                    <p>Preservando la memoria histórica de Córdoba desde 1941</p>
+                </div>
+                <div class="footer-section">
+                    <p class="footer-note">
+                        Sistema de consulta digital del Índice Onomástico<br>
+                        Registro Notarial N°1 (1775-1925)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

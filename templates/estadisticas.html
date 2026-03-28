@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}Estadísticas{% endblock %}
+
+{% block content %}
+<div class="stats-page">
+    <div class="page-header">
+        <h2 class="page-title">Estadísticas del Índice</h2>
+        <p class="page-description">Análisis cuantitativo del Registro Notarial N°1 (1775-1925)</p>
+    </div>
+    
+    <!-- Top Apellidos -->
+    <section class="stats-section">
+        <h3 class="stats-section-title">
+            <span class="section-icon">👥</span>
+            Top 20 Apellidos Más Frecuentes
+        </h3>
+        <div class="chart-container">
+            {% for item in top_apellidos %}
+            <div class="chart-bar-wrapper">
+                <div class="chart-label">{{ item.apellido_principal }}</div>
+                <div class="chart-bar-track">
+                    <div class="chart-bar" style="width: {{ (item.total / top_apellidos[0].total * 100)|int }}%">
+                        <span class="chart-value">{{ item.total }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    
+    <!-- Distribución por década -->
+    <section class="stats-section">
+        <h3 class="stats-section-title">
+            <span class="section-icon">📅</span>
+            Distribución por Década
+        </h3>
+        <div class="timeline-chart">
+            {% for item in por_decada %}
+            <div class="timeline-item">
+                <div class="timeline-decade">{{ item.decada }}s</div>
+                <div class="timeline-bar-track">
+                    <div class="timeline-bar" style="height: {{ (item.total / por_decada|map(attribute='total')|max * 200)|int }}px">
+                        <span class="timeline-value">{{ item.total }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    
+    <!-- Distribución por tipo de acto -->
+    <section class="stats-section">
+        <h3 class="stats-section-title">
+            <span class="section-icon">⚖️</span>
+            Distribución por Tipo de Acto Jurídico
+        </h3>
+        <div class="grid-chart">
+            {% for item in por_tipo_acto %}
+            <div class="grid-item">
+                <div class="grid-item-header">
+                    <div class="grid-item-title">{{ item.tipo_acto }}</div>
+                    <div class="grid-item-count">{{ item.total }}</div>
+                </div>
+                <div class="grid-item-bar-track">
+                    <div class="grid-item-bar" style="width: {{ (item.total / por_tipo_acto[0].total * 100)|int }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    
+    <!-- Top escribanos -->
+    <section class="stats-section">
+        <h3 class="stats-section-title">
+            <span class="section-icon">✍️</span>
+            Top 10 Escribanos Más Prolíficos
+        </h3>
+        <div class="escribanos-list">
+            {% for item in top_escribanos %}
+            <div class="escribano-card">
+                <div class="escribano-rank">{{ loop.index }}</div>
+                <div class="escribano-info">
+                    <div class="escribano-name">{{ item.nombre_normalizado }}</div>
+                    <div class="escribano-count">{{ item.total }} registros</div>
+                </div>
+                <div class="escribano-bar-track">
+                    <div class="escribano-bar" style="width: {{ (item.total / top_escribanos[0].total * 100)|int }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<style>
+.stats-page {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.stats-section {
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+}
+
+.stats-section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--color-border);
+}
+
+/* Chart de barras horizontal */
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.chart-bar-wrapper {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.chart-label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+    text-align: right;
+}
+
+.chart-bar-track {
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-sm);
+    height: 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.chart-bar {
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+    height: 100%;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 var(--spacing-sm);
+    transition: width 0.5s ease;
+}
+
+.chart-value {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--color-surface);
+}
+
+/* Timeline vertical */
+.timeline-chart {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 0.5rem;
+    padding: var(--spacing-md) 0;
+    min-height: 300px;
+}
+
+.timeline-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.timeline-bar-track {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.timeline-bar {
+    width: 80%;
+    background: linear-gradient(180deg, var(--color-accent-light) 0%, var(--color-accent) 100%);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: var(--spacing-xs);
+    transition: height 0.5s ease;
+}
+
+.timeline-value {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: var(--color-surface);
+}
+
+.timeline-decade {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    text-align: center;
+}
+
+/* Grid de tipos de acto */
+.grid-chart {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.grid-item {
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+}
+
+.grid-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xs);
+}
+
+.grid-item-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+}
+
+.grid-item-count {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--color-primary);
+    background: var(--color-bg-tertiary);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+}
+
+.grid-item-bar-track {
+    background: var(--color-bg-tertiary);
+    height: 8px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.grid-item-bar {
+    background: var(--color-primary);
+    height: 100%;
+    border-radius: var(--radius-sm);
+    transition: width 0.5s ease;
+}
+
+/* Lista de escribanos */
+.escribanos-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.escribano-card {
+    display: grid;
+    grid-template-columns: 50px 1fr 200px;
+    gap: var(--spacing-md);
+    align-items: center;
+    padding: var(--spacing-md);
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+}
+
+.escribano-card:hover {
+    border-color: var(--color-primary-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.escribano-rank {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: var(--color-surface);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.escribano-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.escribano-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-text-primary);
+}
+
+.escribano-count {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+.escribano-bar-track {
+    background: var(--color-bg-tertiary);
+    height: 12px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.escribano-bar {
+    background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
+    height: 100%;
+    border-radius: var(--radius-sm);
+    transition: width 0.5s ease;
+}
+
+@media (max-width: 768px) {
+    .chart-bar-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-label {
+        text-align: left;
+    }
+    
+    .timeline-chart {
+        min-height: 200px;
+    }
+    
+    .timeline-decade {
+        font-size: 0.65rem;
+    }
+    
+    .grid-chart {
+        grid-template-columns: 1fr;
+    }
+    
+    .escribano-card {
+        grid-template-columns: 40px 1fr;
+    }
+    
+    .escribano-bar-track {
+        grid-column: 1 / -1;
+    }
+}
+</style>
+{% endblock %}
