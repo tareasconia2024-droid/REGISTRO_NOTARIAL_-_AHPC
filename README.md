@@ -1,2 +1,2 @@
 # REGISTRO_NOTARIAL_-_AHPC
-Indice Onomastico de busqueda de actos juridicos del periodo 1775 al 1925 en Córdoba Capital, en la Serie: Registro Notarial _1 del Archivo Historico Provincial de Cordoba
+Índice onomástico de búsqueda de actos jurídicos del período 1775 al 1925 en Córdoba Capital, en la serie: Registro Notarial N.° 1 del Archivo Histórico Provincial de Córdoba.
